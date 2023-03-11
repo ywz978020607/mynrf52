@@ -1,0 +1,28 @@
+
+T1418 000:089 SEGGER J-Link V6.12a Log File (0000ms, 0017ms total)
+T1418 000:089 DLL Compiled: Dec  2 2016 16:44:26 (0001ms, 0018ms total)
+T1418 000:089 Logging started @ 2023-03-05 09:21 (0001ms, 0018ms total)
+T1418 000:090 JLINK_SetWarnOutHandler(...) (0000ms, 0018ms total)
+T1418 000:090 JLINK_OpenEx(...)
+Firmware: J-Link ARM-OB STM32 compiled Aug 22 2012 19:52:04
+Hardware: V7.00
+S/N: 20090929
+Feature(s): RDI,FlashDL,FlashBP,JFlash,GDBFullWEBSRV Webserver running on local port 19080 (0007ms, 0025ms total)
+T1418 000:090   returns O.K. (0007ms, 0025ms total)
+T1418 000:097 JLINK_SetErrorOutHandler(...) (0000ms, 0025ms total)
+T1418 000:097 JLINK_ExecCommand("ProjectFile = "D:\BaiduNetdiskDownload\nRF5SDK1702d674dde\nRF5_SDK_17.0.2_d674dde\examples\ble_peripheral\ble_app_hids_keyboard\pca10040\s132\arm5_no_packs\JLinkSettings.ini"", ...). D:\software\jlink\JLink_V612a\JLinkDevices.xml evaluated successfully.  returns 0x00 (0058ms, 0083ms total)
+T1418 000:156 JLINK_ExecCommand("Device = nRF52832_xxAA", ...). Device "NRF52832_XXAA" selected.  returns 0x00 (0002ms, 0085ms total)
+T1418 000:158 JLINK_ExecCommand("DisableConnectionTimeout", ...).   returns 0x01 (0000ms, 0085ms total)
+T1418 000:158 JLINK_GetHardwareVersion()  returns 0x11170 (0000ms, 0085ms total)
+T1418 000:158 JLINK_GetDLLVersion()  returns 61201 (0000ms, 0085ms total)
+T1418 000:158 JLINK_GetFirmwareString(...) (0000ms, 0085ms total)
+T1418 000:161 JLINK_GetDLLVersion()  returns 61201 (0000ms, 0085ms total)
+T1418 000:161 JLINK_GetCompileDateTime() (0000ms, 0085ms total)
+T1418 000:162 JLINK_GetFirmwareString(...) (0000ms, 0085ms total)
+T1418 000:162 JLINK_GetHardwareVersion()  returns 0x11170 (0000ms, 0085ms total)
+T1418 000:190 JLINK_TIF_Select(JLINKARM_TIF_SWD)  returns 0x00 (0001ms, 0086ms total)
+T1418 000:191 JLINK_SetSpeed(1000) (0000ms, 0086ms total)
+T1418 000:191 JLINK_GetId() >0x108 TIF> >0x108 TIF> >0x35 TIF> >0x0D TIF> >0x0D TIF> >0x0D TIF> >0x0D TIF> >0x35 TIF> >0x0D TIF> >0x0D TIF> >0x35 TIF> >0x35 TIF> >0x108 TIF> >0x108 TIF>  returns 0x00000000 (0267ms, 0353ms total)
+T1418 001:743 JLINK_Close() (0012ms, 0365ms total)
+T1418 001:743  (0013ms, 0366ms total)
+T1418 001:743 Closed (0013ms, 0366ms total)

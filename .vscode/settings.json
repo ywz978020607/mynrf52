@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "nrf_delay.h": "c",
+        "nrf_pwr_mgmt.h": "c"
+    }
+}
