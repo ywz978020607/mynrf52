@@ -186,7 +186,6 @@
 #define FEATURE_REPORT_MAX_LEN              2                                          /**< Maximum length of Feature Report. */
 #define FEATURE_REPORT_INDEX                0                                          /**< Index of Feature Report. */
 
-
 /**Buffer queue access macros
  *
  * @{ */
@@ -1399,7 +1398,8 @@ static uint32_t send_key_scan_press_release(ble_hids_t * p_hids,
         // Copy the scan code.
         memcpy(data + SCAN_CODE_POS + offset, p_key_pattern + offset, data_len - offset);
 
-        if (bsp_button_is_pressed(SHIFT_BUTTON_ID))
+        // if (bsp_button_is_pressed(SHIFT_BUTTON_ID))
+        if (false)
         {
             data[MODIFIER_KEY_POS] |= SHIFT_KEY_CODE;
         }
@@ -1796,31 +1796,82 @@ static void power_management_init(void)
  */
 static void idle_state_handle(void)
 {
-    float val;
-
     app_sched_execute();
-    if (NRF_LOG_PROCESS() == false)
-    {
-        nrf_pwr_mgmt_run();
-    }
+    // if (NRF_LOG_PROCESS() == false)
+    // {
+    //     nrf_pwr_mgmt_run();
+    // }
     
-    nrf_saadc_value_t  saadc_val2;
-    nrf_drv_saadc_sample_convert(0, &saadc_val2);
-    // NRF_LOG_INFO("adc2:%d", saadc_val2);
+    // /////////////
+    // nrf_saadc_value_t  saadc_val2;
+    // nrf_drv_saadc_sample_convert(0, &saadc_val2);
+    // // NRF_LOG_INFO("adc2:%d", saadc_val2);
 
-    nrf_saadc_value_t  saadc_val3;
-    nrf_drv_saadc_sample_convert(1, &saadc_val3);
+    // nrf_saadc_value_t  saadc_val3;
+    // nrf_drv_saadc_sample_convert(1, &saadc_val3);
+
+    // NRF_LOG_INFO("adc2: %d, adc3:%d", saadc_val2, saadc_val3);
     
-    NRF_LOG_INFO("adc2: %d, adc3:%d", saadc_val2, saadc_val3);
-    
-    nrf_delay_ms(500);
-    // nrf_gpio_pin_read(6) == 0
+    // nrf_delay_ms(500);
+    // // nrf_gpio_pin_read(6) == 0
 }
 
-// adc
+
+/////////////////////////////////////////////////////////////////////////////////////////
+int id_ori_rocker_val_1 = 0; //Pin2
+int id_ori_rocker_val_2 = 1; //Pin3
+int id_rocker_key = 14;
+int id_ori_pointer_val_1 = 2; //Pin4
+int id_ori_pointer_val_2 = 3; //Pin5
+int id_pointer_key = 13;
+
+nrf_saadc_value_t origin_adc_val = 0;
+// nrf_saadc_value_t ori_rocker_val_1 = 0;
+// nrf_saadc_value_t ori_rocker_val_2 = 0;
+// nrf_saadc_value_t ori_pointer_val_1 = 0;
+// nrf_saadc_value_t ori_pointer_val_2 = 0;
+
+int temp_val_1 = 0;
+int temp_val_2 = 0;
+int adc_bit = 10;
+int rank_num = 4; //4挡 [0,8] 9个值 -- 由于默认向下取整，故加上2^(adc_bit-rank_num-1); // 2^(adc_bit - rank_num)为1 故加上一半的bias用来取整
+int adc_bias_rocker_1 = 144; // 补偿-调试时中间位置与中间值的采样差 -- 摇杆模块采用3.3V供电  自动校正
+int adc_bias_rocker_2 = 144; // 补偿-调试时中间位置与中间值的采样差 -- 摇杆模块采用3.3V供电  自动校正
+int adc_bias_pointer_1 = 144; // 补偿-调试时中间位置与中间值的采样差 -- 摇杆模块采用3.3V供电  自动校正
+int adc_bias_pointer_2 = 144; // 补偿-调试时中间位置与中间值的采样差 -- 摇杆模块采用3.3V供电  自动校正
+bool mode = true; // true: scroll false: direction
+
+static uint8_t diy_key_str[] =
+{
+    0x52,       /* 上 */
+    0x51,       /* 下 */
+    0x50,       /* 左 */
+    0x4f,       /* 右 */
+    0x80,       /* 音量+ */
+    0x81,       /* 音量- */
+};
+
+int get_ADC(int channel_id, int temp_add_bias)
+{
+    // refresh
+    nrf_drv_saadc_sample_convert(channel_id, &origin_adc_val);
+    return MIN(origin_adc_val + temp_add_bias, 1<< adc_bit);
+}
+int change_speed(unsigned int val, bool oppo)
+{
+    val += ( 1 << (adc_bit - rank_num - 1) ); //输出挡位区间的一半 [0, 2*rank_num] -> [-xx,xx]
+    val = val >> (adc_bit - rank_num + 1);  // 缩放到只关注2*rank_num挡位
+    return oppo?(rank_num - val):(val - rank_num);
+}
+
+#define pointer_get_val_1 change_speed(get_ADC(id_ori_pointer_val_1, adc_bias_pointer_1), true)
+#define pointer_get_val_2 change_speed(get_ADC(id_ori_pointer_val_2, adc_bias_pointer_2), true)
+#define scroll_get_val_1 change_speed(get_ADC(id_ori_rocker_val_1, adc_bias_rocker_1), false)
+#define scroll_get_val_2 change_speed(get_ADC(id_ori_rocker_val_2, adc_bias_rocker_2), true)
+
+
 static void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
 {
-//   
 }
 //saadc的初始化
 void saadc_init(void)
@@ -1830,6 +1881,10 @@ void saadc_init(void)
             NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(NRF_SAADC_INPUT_AIN0);
     nrf_saadc_channel_config_t channel_config_p3 =
             NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(NRF_SAADC_INPUT_AIN1);
+    nrf_saadc_channel_config_t channel_config_p4 =
+            NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(NRF_SAADC_INPUT_AIN2);
+    nrf_saadc_channel_config_t channel_config_p5 =
+            NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(NRF_SAADC_INPUT_AIN3);
 	//初始化saadc
     err_code = nrf_drv_saadc_init(NULL, saadc_callback);
     APP_ERROR_CHECK(err_code);
@@ -1838,15 +1893,128 @@ void saadc_init(void)
     APP_ERROR_CHECK(err_code);
     err_code = nrf_drv_saadc_channel_init(1, &channel_config_p3);
     APP_ERROR_CHECK(err_code);
+    err_code = nrf_drv_saadc_channel_init(2, &channel_config_p4);
+    APP_ERROR_CHECK(err_code);
+    err_code = nrf_drv_saadc_channel_init(3, &channel_config_p5);
+    APP_ERROR_CHECK(err_code);
+    // bias
+    int avg_val = 0;
+    int avg_num = 5;
+
+    for(int ii=0;ii<avg_num;ii++){
+        nrf_drv_saadc_sample_convert(id_ori_rocker_val_1, &origin_adc_val);
+        avg_val += origin_adc_val;
+        nrf_delay_ms(50);
+    }
+    avg_val = avg_val/avg_num;
+    adc_bias_rocker_1 = ((1<<(adc_bit - 1)) - avg_val);
+    // bias
+    avg_val = 0;
+    for(int ii=0;ii<avg_num;ii++){
+        nrf_drv_saadc_sample_convert(id_ori_rocker_val_2, &origin_adc_val);
+        avg_val += origin_adc_val;
+        nrf_delay_ms(50);
+    }
+    avg_val = avg_val/avg_num;
+    adc_bias_rocker_2 = ((1<<(adc_bit - 1)) - avg_val);
+    // bias
+    avg_val = 0;
+    for(int ii=0;ii<avg_num;ii++){
+        nrf_drv_saadc_sample_convert(id_ori_pointer_val_1, &origin_adc_val);
+        avg_val += origin_adc_val;
+        nrf_delay_ms(50);
+    }
+    avg_val = avg_val/avg_num;
+    adc_bias_pointer_1 = ((1<<(adc_bit - 1)) - avg_val);
+    // bias
+    avg_val = 0;
+    for(int ii=0;ii<avg_num;ii++){
+        nrf_drv_saadc_sample_convert(id_ori_pointer_val_2, &origin_adc_val);
+        avg_val += origin_adc_val;
+        nrf_delay_ms(50);
+    }
+    avg_val = avg_val/avg_num;
+    adc_bias_pointer_2 = ((1<<(adc_bit - 1)) - avg_val);
 }
 
 void diy_init(void)
 {
     saadc_init();
 
-    nrf_gpio_cfg_input(10, NRF_GPIO_PIN_PULLDOWN);
+    nrf_gpio_cfg_input(id_rocker_key, NRF_GPIO_PIN_PULLDOWN);
+    nrf_gpio_cfg_input(id_pointer_key, NRF_GPIO_PIN_PULLDOWN);
 }
 
+void diy_main(void){
+    // refresh_ori_adc_val();
+    
+    if(nrf_gpio_pin_read(id_rocker_key) == 1){
+        // NRF_LOG_INFO("id_rocker_key pressed!!");
+        // 摇杆键多功能： 模式切换&普通右键
+        nrf_delay_ms(150); // 消抖
+        nrf_delay_ms(400);
+        if(nrf_gpio_pin_read(id_rocker_key) == 0){
+            mode = !mode;
+        }
+        else{
+            mouse_buttons_send(2, 0, 0); //right
+            mouse_buttons_send(0, 0, 0); //release
+        }
+        while(nrf_gpio_pin_read(id_rocker_key) == 1);
+        nrf_delay_ms(150);
+    }
+    else if (nrf_gpio_pin_read(id_pointer_key) == 1)
+    {
+        // NRF_LOG_INFO("id_pointer_key pressed!!");
+        nrf_delay_ms(50); // 消抖
+        mouse_buttons_send(1, 0, 0); //left
+        while(nrf_gpio_pin_read(id_pointer_key) == 1);
+        mouse_buttons_send(0, 0, 0); //release
+        nrf_delay_ms(50);
+    }
+    
+    // adc: rocker
+    temp_val_1 = scroll_get_val_1;
+    temp_val_2 = scroll_get_val_2;
+    if(temp_val_1 != 0 || temp_val_2 != 0){
+        if(mode){
+            mouse_buttons_send(0, temp_val_2, temp_val_1); //scroll, left-right
+            nrf_delay_ms(10);
+        }
+        else{
+            // 方向键
+            if(temp_val_2 >= rank_num-2){
+                keys_send(1, &diy_key_str[0]); // h=0x0b
+                while(scroll_get_val_2 >= rank_num-2){};
+            }
+            else if(temp_val_2 <= -rank_num+2){
+                keys_send(1, &diy_key_str[1]);
+                while(scroll_get_val_2 <= -rank_num+2);
+            }
+            else if(temp_val_1 <= -rank_num+2){
+                keys_send(1, &diy_key_str[2]);
+                while(scroll_get_val_1 <= -rank_num+2);
+            }
+            else if(temp_val_1 >= rank_num-2){
+                keys_send(1, &diy_key_str[3]);
+                while(scroll_get_val_1 >= rank_num-2);
+            }
+            nrf_delay_ms(50);
+        }
+        // NRF_LOG_INFO("rocker: temp_val1: %d, temp_val2:%d", temp_val_1, temp_val_2);
+    }
+
+    // adc: pointer
+    temp_val_1 = pointer_get_val_1;
+    temp_val_2 = pointer_get_val_2;
+    if(temp_val_1 != 0 || temp_val_2 != 0){
+        mouse_movement_send(temp_val_1, temp_val_2);
+        // NRF_LOG_INFO("temp_val1: %d, temp_val2:%d", temp_val_1, temp_val_2);
+    }
+
+
+    // nrf_delay_ms(500);
+}
 
 /**@brief Function for application main entry.
  */
@@ -1885,6 +2053,8 @@ int main(void)
     for (;;)
     {
         idle_state_handle();
+        // TODO
+        diy_main();
     }
 }
 
