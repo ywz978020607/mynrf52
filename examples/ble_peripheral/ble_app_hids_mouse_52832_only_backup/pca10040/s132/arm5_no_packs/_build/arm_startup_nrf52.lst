@@ -530,24 +530,24 @@ tf -I..\..\..\..\..\..\external\segger_rtt -I..\..\..\..\..\..\external\utf_con
 verter -I..\..\..\..\..\..\integration\nrfx -I..\..\..\..\..\..\integration\nrf
 x\legacy -I..\..\..\..\..\..\modules\nrfx -I..\..\..\..\..\..\modules\nrfx\driv
 ers\include -I..\..\..\..\..\..\modules\nrfx\hal -I..\config -IC:\Users\ywzsu\D
-esktop\nRF5_SDK_17.0.2_d674dde\examples\ble_peripheral\ble_app_hids_mouse\pca10
-040\s132\arm5_no_packs\RTE -ID:\software\keil5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\C
-ore\Include -ID:\software\keil5\ARM\PACK\NordicSemiconductor\nRF_DeviceFamilyPa
-ck\8.32.1\Device\Include -ID:\software\keil5\ARM\PACK\NordicSemiconductor\nRF_D
-eviceFamilyPack\8.35.0\Device\Include --predefine="__MICROLIB SETA 1" --predefi
-ne="__UVISION_VERSION SETA 518" --predefine="_RTE_ SETA 1" --predefine="NRF5283
-2_XXAA SETA 1" --predefine="APP_TIMER_V2 SETA 1" --predefine="APP_TIMER_V2_RTC1
-_ENABLED SETA 1" --predefine="BLE_STACK_SUPPORT_REQD SETA 1" --predefine="BOARD
-_PCA10040 SETA 1" --predefine="CONFIG_GPIO_AS_PINRESET SETA 1" --predefine="FLO
-AT_ABI_HARD SETA 1" --predefine="NRF52 SETA 1" --predefine="NRF52832_XXAA SETA 
-1" --predefine="NRF52_PAN_74 SETA 1" --predefine="NRF_SD_BLE_API_VERSION SETA 7
-" --predefine="S132 SETA 1" --predefine="SOFTDEVICE_PRESENT SETA 1" --predefine
-="__HEAP_SIZE SETA 8192" --predefine="__STACK_SIZE SETA 8192" --cpreproc_opts=-
-DAPP_TIMER_V2,-DAPP_TIMER_V2_RTC1_ENABLED,-DBLE_STACK_SUPPORT_REQD,-DBOARD_PCA1
-0040,-DCONFIG_GPIO_AS_PINRESET,-DFLOAT_ABI_HARD,-DNRF52,-DNRF52832_XXAA,-DNRF52
-_PAN_74,-DNRF_SD_BLE_API_VERSION=7,-DS132,-DSOFTDEVICE_PRESENT,-D__HEAP_SIZE=81
-92,-D__STACK_SIZE=8192 --list=.\_build\arm_startup_nrf52.lst RTE\Device\nRF5283
-2_xxAA\arm_startup_nrf52.s
+esktop\folder\mynrf52\examples\ble_peripheral\ble_app_hids_mouse_52832_only_bac
+kup\pca10040\s132\arm5_no_packs\RTE -ID:\software\keil5\ARM\PACK\ARM\CMSIS\5.6.
+0\CMSIS\Core\Include -ID:\software\keil5\ARM\PACK\NordicSemiconductor\nRF_Devic
+eFamilyPack\8.32.1\Device\Include -ID:\software\keil5\ARM\PACK\NordicSemiconduc
+tor\nRF_DeviceFamilyPack\8.35.0\Device\Include --predefine="__MICROLIB SETA 1" 
+--predefine="__UVISION_VERSION SETA 518" --predefine="_RTE_ SETA 1" --predefine
+="NRF52832_XXAA SETA 1" --predefine="APP_TIMER_V2 SETA 1" --predefine="APP_TIME
+R_V2_RTC1_ENABLED SETA 1" --predefine="BLE_STACK_SUPPORT_REQD SETA 1" --predefi
+ne="BOARD_PCA10040 SETA 1" --predefine="CONFIG_GPIO_AS_PINRESET SETA 1" --prede
+fine="FLOAT_ABI_HARD SETA 1" --predefine="NRF52 SETA 1" --predefine="NRF52832_X
+XAA SETA 1" --predefine="NRF52_PAN_74 SETA 1" --predefine="NRF_SD_BLE_API_VERSI
+ON SETA 7" --predefine="S132 SETA 1" --predefine="SOFTDEVICE_PRESENT SETA 1" --
+predefine="__HEAP_SIZE SETA 8192" --predefine="__STACK_SIZE SETA 8192" --cprepr
+oc_opts=-DAPP_TIMER_V2,-DAPP_TIMER_V2_RTC1_ENABLED,-DBLE_STACK_SUPPORT_REQD,-DB
+OARD_PCA10040,-DCONFIG_GPIO_AS_PINRESET,-DFLOAT_ABI_HARD,-DNRF52,-DNRF52832_XXA
+A,-DNRF52_PAN_74,-DNRF_SD_BLE_API_VERSION=7,-DS132,-DSOFTDEVICE_PRESENT,-D__HEA
+P_SIZE=8192,-D__STACK_SIZE=8192 --list=.\_build\arm_startup_nrf52.lst RTE\Devic
+e\nRF52832_xxAA\arm_startup_nrf52.s
 
 
 
