@@ -1864,10 +1864,10 @@ int change_speed(unsigned int val, bool oppo)
     return oppo?(rank_num - val):(val - rank_num);
 }
 
-#define pointer_get_val_1 change_speed(get_ADC(id_ori_pointer_val_1, adc_bias_pointer_1), true)
-#define pointer_get_val_2 change_speed(get_ADC(id_ori_pointer_val_2, adc_bias_pointer_2), true)
-#define scroll_get_val_1 change_speed(get_ADC(id_ori_rocker_val_1, adc_bias_rocker_1), false)
-#define scroll_get_val_2 change_speed(get_ADC(id_ori_rocker_val_2, adc_bias_rocker_2), true)
+#define pointer_get_val_1 change_speed(get_ADC(id_ori_pointer_val_1, adc_bias_pointer_1), false)
+#define pointer_get_val_2 change_speed(get_ADC(id_ori_pointer_val_2, adc_bias_pointer_2), false)
+#define scroll_get_val_1 change_speed(get_ADC(id_ori_rocker_val_1, adc_bias_rocker_1), true)
+#define scroll_get_val_2 change_speed(get_ADC(id_ori_rocker_val_2, adc_bias_rocker_2), false)
 
 
 static void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
