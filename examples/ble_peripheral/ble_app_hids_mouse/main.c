@@ -755,7 +755,7 @@ static void hids_init(void)
         0x95, 0x01,       // Report Count (1)
         0x75, 0x08,       // Report Size (8)
         0x81, 0x01,       // Input (Constant) reserved byte(1)
-				
+
         0x95, 0x06,       // Report Count (6)
         0x75, 0x08,       // Report Size (8)
         0x15, 0x00,       // Logical Minimum (0)
@@ -840,7 +840,7 @@ static void hids_init(void)
 
     hids_init_obj.boot_kb_inp_rep_sec.cccd_wr = SEC_JUST_WORKS;
     hids_init_obj.boot_kb_inp_rep_sec.rd      = SEC_JUST_WORKS;
-		
+
     hids_init_obj.protocol_mode_rd_sec = SEC_JUST_WORKS;
     hids_init_obj.protocol_mode_wr_sec = SEC_JUST_WORKS;
     hids_init_obj.ctrl_point_wr_sec    = SEC_JUST_WORKS;
@@ -1314,18 +1314,18 @@ static void mouse_movement_send(int16_t x_delta, int16_t y_delta)
 static void mouse_buttons_send(int8_t click, int8_t wheel, int8_t pan)
 {
     uint32_t err_code;
- 
+
 	uint8_t buffer[INPUT_REP_BUTTONS_LEN];
- 
+
 	APP_ERROR_CHECK_BOOL(INPUT_REP_BUTTONS_LEN == 3);
-	
+
 	NRF_LOG_INFO("mouse_buttons_send\r\n");
 	buffer[0] = click;
 	buffer[1] = wheel;
 	buffer[2] = pan;
- 
+
 	err_code = ble_hids_inp_rep_send(&m_hids, INPUT_REP_BUTTONS_INDEX, INPUT_REP_BUTTONS_LEN, buffer, m_conn_handle);
- 
+
     if ((err_code != NRF_SUCCESS) &&
         (err_code != NRF_ERROR_INVALID_STATE) &&
         (err_code != NRF_ERROR_RESOURCES) &&
@@ -1671,7 +1671,7 @@ static void on_hid_rep_char_write(ble_hids_evt_t * p_evt)
 static void bsp_event_handler(bsp_event_t event)
 {
     static uint8_t * p_key = m_sample_key_press_scan_str;
-    
+
     ret_code_t err_code;
 
     switch (event)
@@ -1801,7 +1801,7 @@ static void idle_state_handle(void)
     // {
     //     nrf_pwr_mgmt_run();
     // }
-    
+
     // /////////////
     // nrf_saadc_value_t  saadc_val2;
     // nrf_drv_saadc_sample_convert(0, &saadc_val2);
@@ -1811,7 +1811,7 @@ static void idle_state_handle(void)
     // nrf_drv_saadc_sample_convert(1, &saadc_val3);
 
     // NRF_LOG_INFO("adc2: %d, adc3:%d", saadc_val2, saadc_val3);
-    
+
     // nrf_delay_ms(500);
     // // nrf_gpio_pin_read(6) == 0
 }
@@ -1834,7 +1834,8 @@ nrf_saadc_value_t origin_adc_val = 0;
 int temp_val_1 = 0;
 int temp_val_2 = 0;
 int adc_bit = 10;
-int rank_num = 4; //4挡 [0,8] 9个值 -- 由于默认向下取整，故加上2^(adc_bit-rank_num-1); // 2^(adc_bit - rank_num)为1 故加上一半的bias用来取整
+int rank_num = 4; //eg: =4挡 [0,8] 9个值 -- 由于默认向下取整，故加上2^(adc_bit-rank_num-1); // 2^(adc_bit - rank_num)为1 故加上一半的bias用来取整
+int death_rank = 5; //min:max=-death_rank:death_rank
 int adc_bias_rocker_1 = 144; // 补偿-调试时中间位置与中间值的采样差 -- 摇杆模块采用3.3V供电  自动校正
 int adc_bias_rocker_2 = 144; // 补偿-调试时中间位置与中间值的采样差 -- 摇杆模块采用3.3V供电  自动校正
 int adc_bias_pointer_1 = 144; // 补偿-调试时中间位置与中间值的采样差 -- 摇杆模块采用3.3V供电  自动校正
@@ -1855,13 +1856,14 @@ int get_ADC(int channel_id, int temp_add_bias)
 {
     // refresh
     nrf_drv_saadc_sample_convert(channel_id, &origin_adc_val);
-    return MIN(origin_adc_val + temp_add_bias, 1<< adc_bit);
+    return MIN(origin_adc_val + temp_add_bias, (1<< adc_bit)-1);
 }
 int change_speed(unsigned int val, bool oppo)
 {
-    val += ( 1 << (adc_bit - rank_num - 1) ); //输出挡位区间的一半 [0, 2*rank_num] -> [-xx,xx]
-    val = val >> (adc_bit - rank_num + 1);  // 缩放到只关注2*rank_num挡位
-    return oppo?(rank_num - val):(val - rank_num);
+    val = (int)((float)val / ((float)(1<<(adc_bit)) / (2*rank_num)) + 0.5);  // 缩放到只关注2*rank_num挡位
+    int out_rank = oppo?(rank_num - val):(val - rank_num);
+    // return out_rank;
+    return (out_rank<-death_rank)?(-death_rank):( (out_rank>death_rank)?(death_rank):(out_rank));
 }
 
 #define pointer_get_val_1 change_speed(get_ADC(id_ori_pointer_val_1, adc_bias_pointer_1), false)
@@ -1947,7 +1949,7 @@ void diy_init(void)
 
 void diy_main(void){
     // refresh_ori_adc_val();
-    
+
     if(nrf_gpio_pin_read(id_rocker_key) == 1){
         // NRF_LOG_INFO("id_rocker_key pressed!!");
         // 摇杆键多功能： 模式切换&普通右键
@@ -1972,7 +1974,7 @@ void diy_main(void){
         mouse_buttons_send(0, 0, 0); //release
         nrf_delay_ms(50);
     }
-    
+
     // adc: rocker
     temp_val_1 = scroll_get_val_1;
     temp_val_2 = scroll_get_val_2;
@@ -2022,7 +2024,7 @@ int main(void)
 {
     SEGGER_RTT_Init();
     SEGGER_RTT_printf(0, "HelloWorld.");
-    
+
     bool erase_bonds;
 
     // Initialize.
